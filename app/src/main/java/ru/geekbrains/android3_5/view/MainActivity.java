@@ -1,5 +1,7 @@
 package ru.geekbrains.android3_5.view;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import com.arellomobile.mvp.MvpAppCompatActivity;
 import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.arellomobile.mvp.presenter.ProvidePresenter;
+import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import butterknife.BindView;
@@ -20,7 +23,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import ru.geekbrains.android3_5.R;
 import ru.geekbrains.android3_5.model.image.ImageLoader;
 import ru.geekbrains.android3_5.model.image.android.ImageLoaderGlide;
-import ru.geekbrains.android3_5.model.image.android.TargetLoaderPicasso;
+import ru.geekbrains.android3_5.model.image.android.ImageViewLoaderPicasso;
 import ru.geekbrains.android3_5.presenter.MainPresenter;
 
 public class MainActivity extends MvpAppCompatActivity implements MainView {
@@ -41,7 +44,7 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
     MainPresenter presenter;
 
     ImageLoader<ImageView> imageLoader;
-    ImageLoader<Target> targetImageLoader;
+
 
     Target target;
 
@@ -51,11 +54,30 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        imageLoader = new ImageLoaderGlide();
-        targetImageLoader = new TargetLoaderPicasso();
+        target = initTarget();
+        imageLoader = new ImageViewLoaderPicasso();
 
         reposRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         reposRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
+
+    private Target initTarget() {
+        return new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
     }
 
     @Override
@@ -73,7 +95,7 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
     @Override
     public void showAvatar(String avatarUrl) {
         imageLoader.loadInto(avatarUrl, avatarImageView);
-        targetImageLoader.loadInto(avatarUrl, target);
+
     }
 
     @Override
