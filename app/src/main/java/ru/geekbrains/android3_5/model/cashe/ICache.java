@@ -17,5 +17,4 @@ public interface ICache {
     void putUser(User user);
 
     void putUserRepos(User user, List<Repository> repositories);
-
 }
