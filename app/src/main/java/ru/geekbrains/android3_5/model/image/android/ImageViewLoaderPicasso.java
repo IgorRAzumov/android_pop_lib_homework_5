@@ -3,25 +3,27 @@ package ru.geekbrains.android3_5.model.image.android;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import io.reactivex.Single;
-import ru.geekbrains.android3_5.model.cashe.ICache;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import ru.geekbrains.android3_5.model.dbHelpers.IDbHelper;
+import ru.geekbrains.android3_5.model.image.IImageSaver;
 import ru.geekbrains.android3_5.model.image.ImageLoader;
-import ru.geekbrains.android3_5.model.storage.IImageSaver;
 
 
 public class ImageViewLoaderPicasso implements ImageLoader<ImageView> {
     private Target target;
-    private IImageSaver imageSaver;
-    private ICache cache;
+    private IImageSaver<Bitmap> imageSaver;
+    private IDbHelper dbHelper;
 
-    public ImageViewLoaderPicasso(IImageSaver imageSaver, ICache cache) {
+    public ImageViewLoaderPicasso(IImageSaver imageSaver, IDbHelper dbHelper) {
         this.imageSaver = imageSaver;
-        this.cache = cache;
+        this.dbHelper = dbHelper;
     }
 
     @Override
@@ -32,7 +34,9 @@ public class ImageViewLoaderPicasso implements ImageLoader<ImageView> {
         target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                saveImage(bitmap, url);
+                saveImage(bitmap, url)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe();
                 container.setImageBitmap(bitmap);
             }
 
@@ -52,11 +56,13 @@ public class ImageViewLoaderPicasso implements ImageLoader<ImageView> {
 
     Single<Boolean> saveImage(Bitmap bitmap, String url) {
         return Single.fromCallable(() -> {
-            boolean isSaved = imageSaver.saveImage(bitmap, url);
-            if (isSaved) {
-                cache.saveImage(url);
+            boolean isSaved = false;
+            String filePath = imageSaver.saveImage(bitmap, url);
+            if (filePath != null && TextUtils.isEmpty(filePath)) {
+                dbHelper.saveImage(url, filePath);
+                isSaved = true;
             }
-            return true;
+            return isSaved;
         });
     }
 

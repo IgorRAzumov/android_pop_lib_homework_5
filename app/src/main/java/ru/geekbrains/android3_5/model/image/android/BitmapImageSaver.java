@@ -1,4 +1,4 @@
-package ru.geekbrains.android3_5.model.storage.android;
+package ru.geekbrains.android3_5.model.image.android;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -7,14 +7,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import ru.geekbrains.android3_5.model.storage.IImageSaver;
+import ru.geekbrains.android3_5.model.image.IImageSaver;
 import timber.log.Timber;
 
 public class BitmapImageSaver implements IImageSaver<Bitmap> {
 
     @Override
-    public boolean saveImage(Bitmap image, String url) {
-        boolean isCompleted = false;
+    public String saveImage(Bitmap image, String url) {
+        String imageFilePath = null;
         File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + url);
         try {
             file.createNewFile();
@@ -22,10 +22,10 @@ public class BitmapImageSaver implements IImageSaver<Bitmap> {
             image.compress(android.graphics.Bitmap.CompressFormat.JPEG, 80, outputStream);
             outputStream.flush();
             outputStream.close();
-            isCompleted = true;
+            imageFilePath = file.getAbsolutePath();
         } catch (IOException e) {
             Timber.e("IOException%s", e.getLocalizedMessage());
         }
-        return isCompleted;
+        return imageFilePath;
     }
 }

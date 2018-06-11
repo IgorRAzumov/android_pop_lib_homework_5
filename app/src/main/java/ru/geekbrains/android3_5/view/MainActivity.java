@@ -21,7 +21,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import ru.geekbrains.android3_5.R;
+import ru.geekbrains.android3_5.model.dbHelpers.RealmHelper;
 import ru.geekbrains.android3_5.model.image.ImageLoader;
+import ru.geekbrains.android3_5.model.image.android.BitmapImageSaver;
 import ru.geekbrains.android3_5.model.image.android.ImageLoaderGlide;
 import ru.geekbrains.android3_5.model.image.android.ImageViewLoaderPicasso;
 import ru.geekbrains.android3_5.presenter.MainPresenter;
@@ -55,7 +57,7 @@ public class MainActivity extends MvpAppCompatActivity implements MainView {
         ButterKnife.bind(this);
 
         target = initTarget();
-        imageLoader = new ImageViewLoaderPicasso();
+        imageLoader = new ImageViewLoaderPicasso(new BitmapImageSaver(),new RealmHelper());
 
         reposRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         reposRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
